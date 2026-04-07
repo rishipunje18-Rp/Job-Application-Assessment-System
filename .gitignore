@@ -1,0 +1,27 @@
+# Build output
+backend/target/
+backend/*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Maven
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+backend/build-output.txt
+backend/run-output.txt
+
+# Temp
+error.txt
+*.tmp

@@ -1,0 +1,11 @@
+services:
+  - type: docker
+    name: job-portal
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: SERVER_PORT
+        value: 8081
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:h2:mem:jobportaldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
