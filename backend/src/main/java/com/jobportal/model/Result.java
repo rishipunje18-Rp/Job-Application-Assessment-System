@@ -9,7 +9,13 @@ public class Result {
     private int score;
     private int totalQuestions;
     private double percentage;
+    private String status;
     private Timestamp completedAt;
+
+    // Display fields
+    private String userName;
+    private String userEmail;
+    private String testTitle;
 
     public Result() {}
 
@@ -31,6 +37,18 @@ public class Result {
     public double getPercentage() { return percentage; }
     public void setPercentage(double percentage) { this.percentage = percentage; }
 
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
     public Timestamp getCompletedAt() { return completedAt; }
     public void setCompletedAt(Timestamp completedAt) { this.completedAt = completedAt; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    public String getTestTitle() { return testTitle; }
+    public void setTestTitle(String testTitle) { this.testTitle = testTitle; }
 }

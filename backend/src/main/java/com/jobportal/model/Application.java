@@ -9,8 +9,9 @@ public class Application {
     private String status;
     private Timestamp appliedAt;
 
-    // Extra fields for display
+    // Display fields (joined from other tables)
     private String userName;
+    private String userEmail;
     private String jobTitle;
 
     public Application() {}
@@ -32,6 +33,9 @@ public class Application {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

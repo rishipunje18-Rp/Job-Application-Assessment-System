@@ -48,8 +48,19 @@ public class JobRepository {
             return ps;
         }, keyHolder);
 
-        job.setId(keyHolder.getKey().longValue());
+        // Safe: H2 may return multiple generated keys, so we get ID specifically
+        job.setId(((Number) keyHolder.getKeys().get("ID")).longValue());
         return job;
+    }
+
+    public void update(Job job) {
+        String sql = "UPDATE jobs SET title = ?, description = ?, company = ?, location = ?, salary = ? WHERE id = ?";
+        jdbcTemplate.update(sql, job.getTitle(), job.getDescription(), job.getCompany(),
+                job.getLocation(), job.getSalary(), job.getId());
+    }
+
+    public void deleteById(Long id) {
+        jdbcTemplate.update("DELETE FROM jobs WHERE id = ?", id);
     }
 
     public List<Job> findAll() {
@@ -60,5 +71,10 @@ public class JobRepository {
         String sql = "SELECT * FROM jobs WHERE id = ?";
         List<Job> jobs = jdbcTemplate.query(sql, rowMapper, id);
         return jobs.isEmpty() ? Optional.empty() : Optional.of(jobs.get(0));
+    }
+
+    public int countAll() {
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM jobs", Integer.class);
+        return count != null ? count : 0;
     }
 }

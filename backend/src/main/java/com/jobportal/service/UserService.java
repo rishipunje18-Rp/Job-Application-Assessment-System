@@ -17,7 +17,6 @@ public class UserService {
     }
 
     public User register(User user) {
-        // Validate
         if (user.getName() == null || user.getName().trim().isEmpty()) {
             throw new RuntimeException("Name is required");
         }
@@ -33,10 +32,15 @@ public class UserService {
             throw new RuntimeException("Email already registered");
         }
 
-        // Default role
+        // Validate role
         if (user.getRole() == null || user.getRole().trim().isEmpty()) {
             user.setRole("STUDENT");
         }
+        String role = user.getRole().toUpperCase();
+        if (!role.equals("ADMIN") && !role.equals("STUDENT")) {
+            throw new RuntimeException("Role must be ADMIN or STUDENT");
+        }
+        user.setRole(role);
 
         return userRepository.save(user);
     }
@@ -62,5 +66,13 @@ public class UserService {
 
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+
+    public List<User> findStudents() {
+        return userRepository.findByRole("STUDENT");
+    }
+
+    public int countStudents() {
+        return userRepository.countByRole("STUDENT");
     }
 }

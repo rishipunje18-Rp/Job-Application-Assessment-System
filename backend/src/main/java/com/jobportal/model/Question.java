@@ -2,6 +2,7 @@ package com.jobportal.model;
 
 public class Question {
     private Long id;
+    private Long testSessionId;
     private String questionText;
     private String optionA;
     private String optionB;
@@ -13,6 +14,9 @@ public class Question {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Long getTestSessionId() { return testSessionId; }
+    public void setTestSessionId(Long testSessionId) { this.testSessionId = testSessionId; }
 
     public String getQuestionText() { return questionText; }
     public void setQuestionText(String questionText) { this.questionText = questionText; }

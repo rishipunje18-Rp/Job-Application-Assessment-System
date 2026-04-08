@@ -3,7 +3,7 @@
 @REM ----------------------------------------------------------------------------
 
 @IF "%DEBUG%"=="" @ECHO OFF
-@setlocal
+@setlocal EnableDelayedExpansion
 
 set MVNW_VERBOSE=false
 

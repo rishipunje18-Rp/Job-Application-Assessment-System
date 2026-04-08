@@ -1,5 +1,5 @@
 -- =============================================
--- JOB PORTAL DATABASE SCHEMA
+-- JOB PORTAL DATABASE SCHEMA (Role-Based)
 -- =============================================
 
 CREATE TABLE IF NOT EXISTS users (
@@ -27,31 +27,40 @@ CREATE TABLE IF NOT EXISTS applications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     job_id BIGINT NOT NULL,
-    status VARCHAR(30) DEFAULT 'APPLIED',
+    status VARCHAR(30) DEFAULT 'PENDING',
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (job_id) REFERENCES jobs(id),
     UNIQUE(user_id, job_id)
 );
 
+CREATE TABLE IF NOT EXISTS test_sessions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200),
+    job_id BIGINT,
+    created_by BIGINT,
+    assigned_user_id BIGINT,
+    user_id BIGINT,
+    question_ids VARCHAR(500),
+    status VARCHAR(20) DEFAULT 'ASSIGNED',
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    FOREIGN KEY (job_id) REFERENCES jobs(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (assigned_user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS questions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    test_session_id BIGINT,
     question_text VARCHAR(1000) NOT NULL,
     option_a VARCHAR(300) NOT NULL,
     option_b VARCHAR(300) NOT NULL,
     option_c VARCHAR(300) NOT NULL,
     option_d VARCHAR(300) NOT NULL,
-    correct_answer CHAR(1) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS test_sessions (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    question_ids VARCHAR(500) NOT NULL,
-    status VARCHAR(20) DEFAULT 'IN_PROGRESS',
-    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    correct_answer CHAR(1) NOT NULL,
+    FOREIGN KEY (test_session_id) REFERENCES test_sessions(id)
 );
 
 CREATE TABLE IF NOT EXISTS results (
@@ -61,6 +70,7 @@ CREATE TABLE IF NOT EXISTS results (
     score INT NOT NULL,
     total_questions INT NOT NULL,
     percentage DECIMAL(5,2),
+    status VARCHAR(20) DEFAULT 'PENDING',
     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (test_session_id) REFERENCES test_sessions(id)

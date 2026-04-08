@@ -44,7 +44,8 @@ public class UserRepository {
             return ps;
         }, keyHolder);
 
-        user.setId(keyHolder.getKey().longValue());
+        // Safe: H2 may return multiple generated keys, so we get ID specifically
+        user.setId(((Number) keyHolder.getKeys().get("ID")).longValue());
         return user;
     }
 
@@ -64,9 +65,19 @@ public class UserRepository {
         return jdbcTemplate.query("SELECT * FROM users", rowMapper);
     }
 
+    public List<User> findByRole(String role) {
+        return jdbcTemplate.query("SELECT * FROM users WHERE role = ? ORDER BY name", rowMapper, role);
+    }
+
     public boolean existsByEmail(String email) {
         String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
         return count != null && count > 0;
+    }
+
+    public int countByRole(String role) {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, role);
+        return count != null ? count : 0;
     }
 }
