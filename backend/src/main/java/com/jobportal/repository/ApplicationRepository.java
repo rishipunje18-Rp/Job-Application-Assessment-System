@@ -47,7 +47,7 @@ public class ApplicationRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "id" });
             ps.setLong(1, application.getUserId());
             ps.setLong(2, application.getJobId());
             ps.setString(3, application.getStatus() != null ? application.getStatus() : "PENDING");
@@ -61,28 +61,28 @@ public class ApplicationRepository {
 
     public List<Application> findByUserId(Long userId) {
         String sql = "SELECT a.*, u.name as user_name, u.email as user_email, j.title as job_title " +
-                     "FROM applications a " +
-                     "JOIN users u ON a.user_id = u.id " +
-                     "JOIN jobs j ON a.job_id = j.id " +
-                     "WHERE a.user_id = ? ORDER BY a.applied_at DESC";
+                "FROM applications a " +
+                "JOIN users u ON a.user_id = u.id " +
+                "JOIN jobs j ON a.job_id = j.id " +
+                "WHERE a.user_id = ? ORDER BY a.applied_at DESC";
         return jdbcTemplate.query(sql, joinedRowMapper, userId);
     }
 
     public List<Application> findByJobId(Long jobId) {
         String sql = "SELECT a.*, u.name as user_name, u.email as user_email, j.title as job_title " +
-                     "FROM applications a " +
-                     "JOIN users u ON a.user_id = u.id " +
-                     "JOIN jobs j ON a.job_id = j.id " +
-                     "WHERE a.job_id = ? ORDER BY a.applied_at DESC";
+                "FROM applications a " +
+                "JOIN users u ON a.user_id = u.id " +
+                "JOIN jobs j ON a.job_id = j.id " +
+                "WHERE a.job_id = ? ORDER BY a.applied_at DESC";
         return jdbcTemplate.query(sql, joinedRowMapper, jobId);
     }
 
     public List<Application> findAll() {
         String sql = "SELECT a.*, u.name as user_name, u.email as user_email, j.title as job_title " +
-                     "FROM applications a " +
-                     "JOIN users u ON a.user_id = u.id " +
-                     "JOIN jobs j ON a.job_id = j.id " +
-                     "ORDER BY a.applied_at DESC";
+                "FROM applications a " +
+                "JOIN users u ON a.user_id = u.id " +
+                "JOIN jobs j ON a.job_id = j.id " +
+                "ORDER BY a.applied_at DESC";
         return jdbcTemplate.query(sql, joinedRowMapper);
     }
 
@@ -102,7 +102,8 @@ public class ApplicationRepository {
     }
 
     public int countByUserId(Long userId) {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM applications WHERE user_id = ?", Integer.class, userId);
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM applications WHERE user_id = ?",
+                Integer.class, userId);
         return count != null ? count : 0;
     }
 }

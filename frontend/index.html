@@ -1,332 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Job Application & Assessment System — Role-based portal for admins and students">
-    <title>JobPortal — Job Application & Assessment System</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Role-Based Job Assessment Portal</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ══════════ TOAST NOTIFICATIONS ══════════ -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ══════════════════════════════════════════════
-     AUTH PAGE — Login & Register
-     ══════════════════════════════════════════════ -->
-<div id="authPage" class="auth-page">
-    <div class="auth-container">
-        <div class="auth-header">
-            <div class="auth-logo">💼 JobPortal</div>
-            <p>Job Application & Assessment System</p>
-        </div>
-
-        <!-- Auth Tabs -->
-        <div class="auth-tabs">
-            <button id="loginTab" class="active" onclick="switchAuthTab('login')">Login</button>
-            <button id="registerTab" onclick="switchAuthTab('register')">Register</button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="loginForm" class="glass-card">
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label for="loginEmail">Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="you@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
-                    🔐 Sign In
-                </button>
-                <p class="text-center mt-2 text-muted" style="font-size:0.85rem;">
-                    Demo: <b>admin@jobportal.com</b> / <b>admin123</b> or <b>john@gmail.com</b> / <b>john123</b>
-                </p>
-            </form>
-        </div>
-
-        <!-- Register Form -->
-        <div id="registerForm" class="glass-card hidden">
-            <form onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label for="regName">Full Name</label>
-                    <input type="text" id="regName" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="regEmail">Email Address</label>
-                    <input type="email" id="regEmail" placeholder="you@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="regPassword">Password</label>
-                    <input type="password" id="regPassword" placeholder="Create a password" required minlength="4">
-                </div>
-                <div class="form-group">
-                    <label for="regRole">Account Type</label>
-                    <select id="regRole" required>
-                        <option value="STUDENT">Student / Job Seeker</option>
-                        <option value="ADMIN">Admin / Recruiter</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
-                    🚀 Create Account
-                </button>
-            </form>
-        </div>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-content">
+      <div class="spinner-lg"></div>
+      <p id="loadingMessage">Loading...</p>
     </div>
-</div>
+  </div>
 
-<!-- ══════════════════════════════════════════════
-     MAIN APP (shown after login)
-     ══════════════════════════════════════════════ -->
-<div id="appPage" class="hidden">
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="logo">
-            <span class="logo-icon">💼</span>
-            <span>JobPortal</span>
+  <!-- Authentication Page -->
+  <div id="authPage" class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo">💼 JobPortal</div>
+        <p>Premium Career & Assessment Platform</p>
+      </div>
+
+      <div class="glass-card">
+        <div class="auth-tabs">
+          <button id="tabLogin" class="active" onclick="switchAuthMode('login')">Login</button>
+          <button id="tabRegister" onclick="switchAuthMode('register')">Register</button>
         </div>
-        <div class="nav-links">
-            <a href="javascript:void(0)" onclick="showView('dashboard')" id="navDashboard" class="active">📊 Dashboard</a>
-            <a href="javascript:void(0)" onclick="showView('jobs')" id="navJobs">💼 Jobs</a>
-            <!-- Admin only: Applications nav -->
-            <a href="javascript:void(0)" onclick="showView('applications')" id="navApplications" class="hidden">📋 Applications</a>
-            <a href="javascript:void(0)" onclick="showView('tests')" id="navTests">📝 Tests</a>
-            <a href="javascript:void(0)" onclick="showView('results')" id="navResults">🏆 Results</a>
-            <div class="nav-user">
-                <div class="avatar" id="userAvatar">U</div>
-                <div>
-                    <span id="userName" style="font-size:0.85rem; color: var(--text-primary);"></span>
-                    <span id="userRole" class="role-badge"></span>
-                </div>
+
+        <form id="authForm" onsubmit="handleAuth(event)">
+          <div id="registerFields" class="hidden">
+            <div class="form-group">
+              <label for="nameInput">Full Name</label>
+              <input type="text" id="nameInput" placeholder="Enter your full name">
             </div>
-            <button onclick="handleLogout()" class="btn-logout">↗ Logout</button>
+            <div class="form-group">
+              <label for="roleInput">Account Role</label>
+              <select id="roleInput">
+                <option value="STUDENT">Student / Job Seeker</option>
+                <option value="ADMIN">Admin / Recruiter</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="emailInput">Email Address</label>
+            <input type="email" id="emailInput" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="passwordInput">Password</label>
+            <input type="password" id="passwordInput" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full mt-1" id="authSubmitBtn">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="appPage" class="hidden">
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="logo">
+        <span class="logo-icon">💼</span>
+        <span>JobPortal</span>
+      </div>
+
+      <div class="nav-links">
+        <!-- Admin Links -->
+        <div id="adminNavLinks" class="hidden">
+          <button onclick="router('adminDashboard')">Dashboard</button>
+          <button onclick="router('adminJobs')">Manage Jobs</button>
+          <button onclick="router('adminApplicants')">Applicants</button>
+          <button onclick="router('adminTests')">Tests</button>
+          <button onclick="router('adminResults')">Results</button>
         </div>
+
+        <!-- Student Links -->
+        <div id="studentNavLinks" class="hidden">
+          <button onclick="router('studentDashboard')">Dashboard</button>
+          <button onclick="router('studentJobs')">Browse Jobs</button>
+          <button onclick="router('studentTests')">My Tests</button>
+          <button onclick="router('studentResults')">My Results</button>
+        </div>
+
+        <div class="nav-user">
+          <span id="userRoleBadge" class="badge-role"></span>
+          <div class="avatar" id="userAvatar">U</div>
+          <span id="userNameDisplay" class="nav-text"></span>
+          <button onclick="logout()" class="btn-sm" style="margin-left: 0.5rem; color: var(--danger);"><span class="nav-text">Logout</span><span class="hidden nav-icon">🚪</span></button>
+        </div>
+      </div>
     </nav>
 
     <div class="container">
-
-        <!-- ══════════ DASHBOARD VIEW ══════════ -->
-        <div id="dashboardView">
-            <div class="page-header">
-                <h1>👋 Welcome, <span id="dashWelcome"></span>!</h1>
-                <p id="dashSubtitle">Here's an overview of your activity</p>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="dashboard-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-icon purple">💼</div>
-                    <div class="stat-info">
-                        <h3 id="statJobs">0</h3>
-                        <p id="statJobsLabel">Jobs</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon pink">📝</div>
-                    <div class="stat-info">
-                        <h3 id="statApps">0</h3>
-                        <p id="statAppsLabel">Applications</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon cyan">🧪</div>
-                    <div class="stat-info">
-                        <h3 id="statTests">0</h3>
-                        <p id="statTestsLabel">Tests</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">🏆</div>
-                    <div class="stat-info">
-                        <h3 id="statResults">0</h3>
-                        <p id="statResultsLabel">Results</p>
-                    </div>
-                </div>
-            </div>
+      <!-- ================= ADMIN VIEWS ================= -->
+      
+      <!-- Admin Dashboard -->
+      <section id="adminDashboardView" class="view hidden">
+        <div class="page-header">
+          <h1>Admin Dashboard</h1>
+          <p>Platform overview and statistics</p>
         </div>
-
-        <!-- ══════════ JOBS VIEW ══════════ -->
-        <div id="jobsView" class="hidden">
-            <div class="page-header">
-                <h1>💼 Job Openings</h1>
-                <p>Find your next career opportunity</p>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-icon purple">💼</div>
+            <div class="stat-info">
+              <h3 id="statTotalJobs">0</h3>
+              <p>Total Jobs</p>
             </div>
-
-            <!-- Admin: Create Job Form -->
-            <div id="adminJobForm" class="glass-card hidden" style="margin-bottom: 2rem;">
-                <h3 style="margin-bottom:1rem;">➕ Post a New Job</h3>
-                <form onsubmit="handleCreateJob(event)">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="jobTitle">Job Title</label>
-                            <input type="text" id="jobTitle" placeholder="e.g. Java Developer" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="jobCompany">Company</label>
-                            <input type="text" id="jobCompany" placeholder="e.g. TechCorp" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="jobLocation">Location</label>
-                            <input type="text" id="jobLocation" placeholder="e.g. Bangalore" value="Remote">
-                        </div>
-                        <div class="form-group">
-                            <label for="jobSalary">Salary</label>
-                            <input type="text" id="jobSalary" placeholder="e.g. 8-12 LPA">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="jobDesc">Description</label>
-                        <textarea id="jobDesc" rows="3" placeholder="Job description..." required style="resize:vertical;"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">✅ Post Job</button>
-                </form>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon pink">👥</div>
+            <div class="stat-info">
+              <h3 id="statTotalApplicants">0</h3>
+              <p>Applications</p>
             </div>
-
-            <!-- Job Cards List -->
-            <div id="jobsList" class="jobs-grid"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon cyan">📝</div>
+            <div class="stat-info">
+              <h3 id="statTestsCreated">0</h3>
+              <p>Tests Created</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📊</div>
+            <div class="stat-info">
+              <h3 id="statTotalResults">0</h3>
+              <p>Results Evaluated</p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <!-- ══════════ APPLICATIONS VIEW (Admin Only) ══════════ -->
-        <div id="applicationsView" class="hidden">
-            <div class="page-header">
-                <h1>📋 All Applications</h1>
-                <p>Review and manage student applications</p>
-            </div>
-            <div id="applicationsList"></div>
+      <!-- Admin Jobs Management -->
+      <section id="adminJobsView" class="view hidden">
+        <div class="page-header flex-between">
+          <div>
+            <h1>Manage Jobs</h1>
+            <p>Create, edit, and delete job postings</p>
+          </div>
+          <button class="btn btn-primary" onclick="showCreateJobModal()">+ Create New Job</button>
         </div>
-
-        <!-- ══════════ TESTS VIEW ══════════ -->
-        <div id="testsView" class="hidden">
-            <!-- Admin: Create Test Section -->
-            <div id="adminTestSection" class="hidden">
-                <div class="page-header">
-                    <h1>📝 Test Management</h1>
-                    <p>Create and assign MCQ tests to students</p>
-                </div>
-
-                <!-- Create Test Form -->
-                <div class="glass-card" style="margin-bottom:2rem;">
-                    <h3 style="margin-bottom:1rem;">➕ Create New Test</h3>
-                    <form onsubmit="handleCreateTest(event)" id="createTestForm">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem;">
-                            <div class="form-group">
-                                <label for="testTitle">Test Title</label>
-                                <input type="text" id="testTitle" placeholder="e.g. Java Assessment" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="testJob">Link to Job (Optional)</label>
-                                <select id="testJob">
-                                    <option value="">— No linked job —</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="testStudent">Assign to Student</label>
-                                <select id="testStudent" required>
-                                    <option value="">— Select Student —</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Questions Container (dynamic) -->
-                        <div id="testQuestionsContainer"></div>
-
-                        <div style="display:flex; gap:1rem; margin-top:1rem;">
-                            <button type="button" class="btn btn-secondary" onclick="addQuestionField()">
-                                ➕ Add Question
-                            </button>
-                            <button type="submit" class="btn btn-success">✅ Create Test</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Admin: List of all tests -->
-                <h3 style="margin-bottom:1rem;">📋 All Tests</h3>
-                <div id="allTestsList"></div>
-            </div>
-
-            <!-- Student: Assigned Tests Section -->
-            <div id="studentTestSection" class="hidden">
-                <div class="page-header">
-                    <h1>📝 My Assessments</h1>
-                    <p>Tests assigned to you by administrators</p>
-                </div>
-
-                <!-- List of assigned tests -->
-                <div id="assignedTestsList"></div>
-
-                <!-- Active Test (quiz in progress) -->
-                <div id="activeTest" class="hidden">
-                    <div class="test-header">
-                        <div>
-                            <h2 id="activeTestTitle">Assessment</h2>
-                            <span class="question-progress">Question <span id="currentQ">1</span> of <span id="totalQ">10</span></span>
-                        </div>
-                        <div class="timer" id="timerDisplay">⏱ 10:00</div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                    </div>
-                    <div id="questionsContainer"></div>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-primary" onclick="submitTest()" id="submitTestBtn" style="font-size:1.05rem; padding:0.9rem 2rem;">
-                            ✅ Submit Test
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="jobs-grid" id="adminJobsGrid">
+          <!-- Populated by JS -->
         </div>
+      </section>
 
-        <!-- ══════════ RESULTS VIEW ══════════ -->
-        <div id="resultsView" class="hidden">
-            <!-- Score display (shown after test submission) -->
-            <div id="resultDisplay" class="hidden">
-                <div class="result-container">
-                    <h1>🎉 Test Complete!</h1>
-                    <div class="score-circle">
-                        <span class="score-value" id="resultScore">0</span>
-                        <span class="score-label">out of <span id="resultTotal">10</span></span>
-                    </div>
-                    <div class="result-message" id="resultMessage"></div>
-                    <div class="result-details">
-                        <div class="result-stat">
-                            <div class="stat-value" id="resultCorrect" style="color:var(--success);">0</div>
-                            <div class="stat-label">Correct</div>
-                        </div>
-                        <div class="result-stat">
-                            <div class="stat-value" id="resultWrong" style="color:var(--danger);">0</div>
-                            <div class="stat-label">Wrong</div>
-                        </div>
-                        <div class="result-stat">
-                            <div class="stat-value" id="resultPercentage" style="color:var(--accent);">0%</div>
-                            <div class="stat-label">Percentage</div>
-                        </div>
-                    </div>
-                    <div class="result-actions">
-                        <button class="btn btn-primary" onclick="showView('tests')">📝 View Tests</button>
-                        <button class="btn btn-secondary" onclick="showView('dashboard')">📊 Dashboard</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Results History -->
-            <div id="allResultsSection">
-                <div class="page-header">
-                    <h1 id="resultsTitle">🏆 Results</h1>
-                    <p id="resultsSubtitle">Assessment performance</p>
-                </div>
-                <div id="allResultsList"></div>
-            </div>
+      <!-- Admin Applicants Management -->
+      <section id="adminApplicantsView" class="view hidden">
+        <div class="page-header">
+          <h1>Manage Applicants</h1>
+          <p>Review applications and update status</p>
         </div>
+        <div class="glass-card" style="padding: 0; overflow-x: auto;">
+          <table class="results-table" id="adminApplicantsTable">
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Job Title</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    </div><!-- end container -->
-</div><!-- end appPage -->
+      <!-- Admin Tests Management -->
+      <section id="adminTestsView" class="view hidden">
+        <div class="page-header flex-between">
+          <div>
+            <h1>Manage Tests</h1>
+            <p>Create and assign assessments</p>
+          </div>
+          <button class="btn btn-primary" onclick="showCreateTestModal()">+ Create Assessment</button>
+        </div>
+        <div class="jobs-grid" id="adminTestsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
 
-<script src="script.js"></script>
+      <!-- Admin Results Evaluation -->
+      <section id="adminResultsView" class="view hidden">
+        <div class="page-header">
+          <h1>Test Results</h1>
+          <p>Evaluate scores and select candidates</p>
+        </div>
+        <div class="glass-card" style="padding: 0; overflow-x: auto;">
+          <table class="results-table" id="adminResultsTable">
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Test Title</th>
+                <th>Score</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= STUDENT VIEWS ================= -->
+
+      <!-- Student Dashboard -->
+      <section id="studentDashboardView" class="view hidden">
+        <div class="page-header">
+          <h1>Student Dashboard</h1>
+          <p>Welcome back, <span id="studentWelcomeName"></span></p>
+        </div>
+        <div class="dashboard-grid">
+          <div class="stat-card" style="cursor: pointer;" onclick="router('studentJobs')">
+            <div class="stat-icon purple">💼</div>
+            <div class="stat-info">
+              <h3 id="statAvailableJobs">0</h3>
+              <p>Available Jobs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon pink">📄</div>
+            <div class="stat-info">
+              <h3 id="statMyApplications">0</h3>
+              <p>My Applications</p>
+            </div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="router('studentTests')">
+            <div class="stat-icon cyan">📝</div>
+            <div class="stat-info">
+              <h3 id="statMyTests">0</h3>
+              <p>Assigned Tests</p>
+            </div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="router('studentResults')">
+            <div class="stat-icon green">📊</div>
+            <div class="stat-info">
+              <h3 id="statMyResults">0</h3>
+              <p>Completed Tests</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Student Jobs -->
+      <section id="studentJobsView" class="view hidden">
+        <div class="page-header">
+          <h1>Browse Jobs</h1>
+          <p>Find and apply for your dream role</p>
+        </div>
+        <div class="jobs-grid" id="studentJobsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Student Tests -->
+      <section id="studentTestsView" class="view hidden">
+        <div class="page-header">
+          <h1>My Assigned Tests</h1>
+          <p>Take assessments assigned to you</p>
+        </div>
+        <div class="jobs-grid" id="studentTestsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Student Results -->
+      <section id="studentResultsView" class="view hidden">
+        <div class="page-header">
+          <h1>My Results</h1>
+          <p>View your scores and selection status</p>
+        </div>
+        <div class="jobs-grid" id="studentResultsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Test Taking View (Shared by Student but specific logic) -->
+      <section id="testTakingView" class="view hidden">
+        <div class="test-header">
+          <div>
+            <h2 id="takingTestTitle">Assessment</h2>
+            <div class="question-progress" id="questionProgress">Question 1 of N</div>
+          </div>
+        </div>
+        
+        <div id="testQuestionContainer">
+          <!-- Populated by JS -->
+        </div>
+        
+        <div class="flex-between mt-2">
+          <p class="text-muted" style="font-size: 0.85rem;">Note: Once submitted, you cannot retake this test.</p>
+          <button class="btn btn-primary" onclick="submitTest()">Submit Assessment</button>
+        </div>
+      </section>
+
+      <!-- Result Detail View -->
+      <section id="resultDetailView" class="view hidden">
+        <div class="result-container" id="resultDetailContent">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- Create Job Modal -->
+  <div id="createJobModal" class="loading-overlay hidden">
+    <div class="glass-card" style="width: 100%; max-width: 500px; position:relative;">
+      <h2 class="mb-2">Create New Job</h2>
+      <button onclick="closeModals()" style="position:absolute; top: 1rem; right: 1rem; background:none; border:none; color:white; cursor:pointer;">✕</button>
+      <form onsubmit="handleCreateJob(event)">
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" id="jobTitleInp" required>
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" id="jobCompanyInp" required>
+        </div>
+        <div class="form-group flex-between gap-1">
+          <div style="flex:1">
+            <label>Location</label>
+            <input type="text" id="jobLocationInp" required>
+          </div>
+          <div style="flex:1">
+            <label>Salary Range</label>
+            <input type="text" id="jobSalaryInp" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="jobDescInp" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Post Job</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Test Modal -->
+  <div id="createTestModal" class="loading-overlay hidden">
+    <div class="glass-card" style="width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; position:relative;">
+      <h2 class="mb-2">Create Assessment</h2>
+      <button onclick="closeModals()" style="position:absolute; top: 1rem; right: 1rem; background:none; border:none; color:white; cursor:pointer;">✕</button>
+      <form onsubmit="handleCreateTest(event)">
+        <div class="form-group">
+          <label>Assessment Title</label>
+          <input type="text" id="testTitleInp" required>
+        </div>
+        <div class="form-group flex-between gap-1">
+          <div style="flex:1">
+            <label>Assign to Job</label>
+            <select id="testJobInp">
+              <option value="">-- Optional --</option>
+            </select>
+          </div>
+          <div style="flex:1">
+            <label>Assign to Student</label>
+            <select id="testStudentInp" required>
+              <option value="">-- Select Student --</option>
+            </select>
+          </div>
+        </div>
+        
+        <h3 class="mt-3 mb-1">Questions</h3>
+        <div id="testQuestionsList">
+          <!-- Question block -->
+          <div class="glass-card mb-2" style="padding: 1rem;">
+            <div class="form-group"><label>Question Text</label><input type="text" class="q-text" required></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem">
+              <div><label>Opt A</label><input type="text" class="q-optA" required></div>
+              <div><label>Opt B</label><input type="text" class="q-optB" required></div>
+              <div><label>Opt C</label><input type="text" class="q-optC" required></div>
+              <div><label>Opt D</label><input type="text" class="q-optD" required></div>
+            </div>
+            <div class="form-group mt-1">
+              <label>Correct Answer</label>
+              <select class="q-ans" required>
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-full mb-2" onclick="addQuestionBlock()">+ Add Another Question</button>
+        <button type="submit" class="btn btn-success btn-full">Create & Assign Test</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
