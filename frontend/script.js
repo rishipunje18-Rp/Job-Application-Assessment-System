@@ -1,5 +1,11 @@
+// ================= CONFIGURATION =================
+// Base URL for the Spring Boot backend API. 
+// Since both frontend and backend run on 8081, this points to localhost:8081.
 const API_URL = 'http://localhost:8081/api';
+
+// Current logged-in user stored in localStorage to persist across page reloads.
 let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+// Active test session state variables
 let currentTestSessionId = null;
 let currentTestAnswers = {};
 
@@ -30,12 +36,16 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
+// Generic API call wrapper that handles loading state, headers, and JSON parsing
 async function apiCall(endpoint, method = 'GET', body = null) {
   try {
     showLoading();
+    // Setup request options: HTTP method and content type headers
     const options = { method, headers: { 'Content-Type': 'application/json' } };
+    // If a request body is provided, convert the JS object to a JSON string
     if (body) options.body = JSON.stringify(body);
     
+    // Perform the fetch request to the backend
     const res = await fetch(`${API_URL}${endpoint}`, options);
     const data = await res.json();
     hideLoading();
@@ -96,11 +106,13 @@ async function handleAuth(e) {
 
   try {
     if (isLogin) {
+      // API call to login the user
       const user = await apiCall('/users/login', 'POST', { email, password });
       currentUser = user;
     } else {
       const name = document.getElementById('nameInput').value;
       const role = document.getElementById('roleInput').value;
+      // API call to register a new user
       const user = await apiCall('/users/register', 'POST', { name, email, password, role });
       currentUser = user;
     }
@@ -136,6 +148,8 @@ function router(viewId) {
 }
 
 // ================= ADMIN FUNCTIONS =================
+
+// Loads the admin dashboard statistics by calling the user stats API
 async function loadAdminDashboard() {
   try {
     const stats = await apiCall(`/users/stats/${currentUser.id}`);
@@ -146,6 +160,7 @@ async function loadAdminDashboard() {
   } catch (e) {}
 }
 
+// Fetches all jobs created in the system via API and renders them in the grid
 async function loadAdminJobs() {
   try {
     const jobs = await apiCall('/jobs');
