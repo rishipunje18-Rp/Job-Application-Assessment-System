@@ -13,7 +13,7 @@ A complete full-stack **Job Portal** with online assessment, built with **Spring
 
 - 🔐 **User Module** — Register & Login (Admin / Student roles)
 - 💼 **Job Module** — Browse jobs, apply, admin creates postings
-- 📝 **Test System** — 10 random questions, 10-minute timer, auto-score
+- 📝 **Test System** — Manual test creation ,10 random questions, 10-minute timer, auto-score
 - 🏆 **Result Module** — Score, percentage, grade, history
 - 🎨 **Premium UI** — Dark glassmorphism theme, animations, responsive
 
@@ -33,7 +33,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-Open **http://localhost:8081** in your browser.
+Open https://job-application-assessment-system-hire.onrender.com  in your browser.
 
 ### Demo Credentials
 
@@ -41,6 +41,7 @@ Open **http://localhost:8081** in your browser.
 |------|-------|----------|
 | Admin | admin@jobportal.com | admin123 |
 | Student | john@gmail.com | john123 |
+| Any | email | password |
 
 ## 📁 Project Structure
 
@@ -83,6 +84,7 @@ cd backend
 docker build -t job-portal .
 docker run -p 8081:8081 job-portal
 ```
+Click on Live URL -  https://job-application-assessment-system-hire.onrender.com
 
 ## 📄 License
 
