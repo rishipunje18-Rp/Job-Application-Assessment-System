@@ -1,7 +1,6 @@
 // ================= CONFIGURATION =================
-// Base URL for the Spring Boot backend API. 
-// Since both frontend and backend run on 8081, this points to localhost:8081.
-const API_URL = 'http://localhost:8081/api';
+// Base URL for the Spring Boot backend API (deployed on Render).
+const API_URL = 'https://job-application-assessment-system-hire.onrender.com/api';
 
 // Current logged-in user stored in localStorage to persist across page reloads.
 let currentUser = JSON.parse(localStorage.getItem('user')) || null;

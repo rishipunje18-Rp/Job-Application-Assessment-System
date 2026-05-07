@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8081/api';
+const API_URL = 'https://job-application-assessment-system-hire.onrender.com/api';
 let currentUser = JSON.parse(localStorage.getItem('user')) || null;
 let currentTestSessionId = null;
 let currentTestAnswers = {};
